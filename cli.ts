@@ -1,4 +1,6 @@
 import { type Args, parseArgs } from "@std/cli";
+import { getBuilder } from "./graphql.ts";
+import { createRunServer } from "./server.ts";
 
 /**
  * Reads the version from the deno.json file.
@@ -177,9 +179,10 @@ export const _internal = {
  */
 export async function main(
   name: string,
-  runServer: (args: Args) => Promise<void>,
-  argDictionaryInput: { [key: string]: ArgDictionaryItem },
   env_prefix: string,
+  argDictionaryInput: { [key: string]: ArgDictionaryItem },
+  builder: ReturnType<typeof getBuilder>,
+  runServer: ReturnType<typeof createRunServer>,
 ): Promise<void> {
   const argDictionary = buildArgDictionary(
     name,
@@ -195,6 +198,6 @@ export async function main(
     if (arg?.exit) {
       Deno.exit(0);
     }
-    runServer(args);
+    runServer(name, args, builder);
   });
 }

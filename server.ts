@@ -23,7 +23,12 @@ export function createRunServer(
     args: Args,
   ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
   beforeServe?: (args: Args) => void | Promise<void>,
-): (name: string, info: string, args: Args) => void {
+): (
+  name: string,
+  info: string,
+  builder: ReturnType<typeof getBuilder>,
+  args: Args,
+) => void {
   /**
    * Runs the GraphQL server.
    * @param {string} name - The name of the server.
@@ -35,7 +40,6 @@ export function createRunServer(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
     );
-    const builder = getBuilder(info);
     if (appendSchema) {
       await appendSchema(builder, args);
     }
