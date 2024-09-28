@@ -20,6 +20,7 @@ export function createRunServer(
   log: Log,
   appendSchema?: (
     builder: ReturnType<typeof getBuilder>,
+    args: Args,
   ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
   beforeServe?: (args: Args) => void | Promise<void>,
 ): (name: string, info: string, args: Args) => void {
@@ -36,7 +37,7 @@ export function createRunServer(
     );
     const builder = getBuilder(info);
     if (appendSchema) {
-      await appendSchema(builder);
+      await appendSchema(builder, args);
     }
     const schema = builder.toSchema();
     const yoga = createYoga({
