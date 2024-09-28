@@ -25,7 +25,7 @@ export function createRunServer(
   beforeServe?: (args: Args) => void | Promise<void>,
 ): (
   name: string,
-  builder: ReturnType<typeof getBuilder>,
+  info: string,
   args: Args,
 ) => void {
   /**
@@ -36,13 +36,14 @@ export function createRunServer(
    */
   return async (
     name: string,
-    builder: ReturnType<typeof getBuilder>,
+    info: string,
     args: Args,
   ) => {
     setLogLevel(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
     );
+    const builder = getBuilder(info);
     if (appendSchema) {
       await appendSchema(builder, args);
     }

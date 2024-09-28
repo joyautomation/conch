@@ -1,20 +1,12 @@
 import { describe, it } from "@std/testing/bdd";
-import {
-  assertSpyCallArgs,
-  assertSpyCalls,
-  spy,
-  stub,
-} from "@std/testing/mock";
+import { assertSpyCallArgs, assertSpyCalls, stub } from "@std/testing/mock";
 import { createMain } from "./cli.ts";
 import { _internal } from "./cli.ts";
 import { assert } from "@std/assert";
-import { createRunServer } from "./server.ts";
-import { getBuilder } from "./graphql.ts";
 
 describe("cli", () => {
   const info = "some info";
-  const builder = getBuilder(info);
-  const main = createMain("conch", "CONCH", {}, builder, async () => {});
+  const main = createMain("conch", info, "CONCH", {}, async () => {});
   it("should print version", () => {
     const version = JSON.parse(Deno.readTextFileSync("./deno.json")).version;
     using logStub = stub(console, "log");

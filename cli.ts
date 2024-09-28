@@ -180,9 +180,9 @@ export const _internal = {
 
 export function createMain(
   name: string,
+  info: string,
   env_prefix: string,
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
-  builder: ReturnType<typeof getBuilder>,
   runServer: ReturnType<typeof createRunServer>,
 ): () => void {
   return async (): Promise<void> => {
@@ -201,6 +201,6 @@ export function createMain(
         Deno.exit(0);
       }
     });
-    await runServer(name, builder, args);
+    await runServer(name, info, args);
   };
 }
