@@ -177,27 +177,30 @@ export const _internal = {
  * @param {string} env_prefix - The environment variable prefix.
  * @returns {Promise<void>}
  */
-export async function main(
+
+export function createMain(
   name: string,
   env_prefix: string,
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
   builder: ReturnType<typeof getBuilder>,
   runServer: ReturnType<typeof createRunServer>,
-): Promise<void> {
-  const argDictionary = buildArgDictionary(
-    name,
-    argDictionaryInput,
-    env_prefix,
-  );
-  const args = _internal.parseArguments(Deno.args, argDictionary);
-  Object.keys(args).forEach((key) => {
-    const arg = argDictionary[key];
-    if (arg?.action) {
-      arg.action();
-    }
-    if (arg?.exit) {
-      Deno.exit(0);
-    }
-  });
-  await runServer(name, builder, args);
+) {
+  return async (): Promise<void> => {
+    const argDictionary = buildArgDictionary(
+      name,
+      argDictionaryInput,
+      env_prefix,
+    );
+    const args = _internal.parseArguments(Deno.args, argDictionary);
+    Object.keys(args).forEach((key) => {
+      const arg = argDictionary[key];
+      if (arg?.action) {
+        arg.action();
+      }
+      if (arg?.exit) {
+        Deno.exit(0);
+      }
+    });
+    await runServer(name, builder, args);
+  };
 }
