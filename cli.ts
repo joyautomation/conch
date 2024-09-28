@@ -193,7 +193,7 @@ export function createMain(
     );
     const args = _internal.parseArguments(Deno.args, argDictionary);
     Object.keys(args).forEach((key) => {
-      const arg = argDictionary[key];
+      const arg = args[key];
       if (arg?.action) {
         arg.action();
       }
