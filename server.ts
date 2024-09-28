@@ -1,7 +1,7 @@
 import { createYoga } from "graphql-yoga";
 import { validateHost, validatePort } from "./validation.ts";
 import type { Args } from "@std/cli";
-import { Log, setLogLevel } from "@joyautomation/coral";
+import { type Log, setLogLevel } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
 
 /**
@@ -19,7 +19,7 @@ export function createRunServer(
   default_host: string,
   appendSchema: (
     builder: ReturnType<typeof getBuilder>,
-  ) => ReturnType<typeof getBuilder>,
+  ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
   log: Log,
 ): (name: string, info: string, args: Args) => void {
   /**
