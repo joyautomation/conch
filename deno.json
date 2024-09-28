@@ -1,5 +1,5 @@
 {
-  "name": "conch",
+  "name": "@joyautomation/conch",
   "exports": "./index.ts",
   "version": "0.0.4",
   "license": "GPL-3.0-or-later",
