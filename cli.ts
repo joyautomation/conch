@@ -1,12 +1,17 @@
 import { type Args, parseArgs } from "@std/cli";
 
+/**
+ * Reads the version from the deno.json file.
+ * @returns {string} The version string.
+ */
 function getVersion(): string {
   const config = Deno.readTextFileSync("./deno.json");
   return JSON.parse(config).version;
 }
 
 /**
- * Prints the current version of mantle to the console.
+ * Prints the current version of the application to the console.
+ * @param {string} name - The name of the application.
  */
 export function printVersion(name: string): void {
   console.log(`${name} v${getVersion()}`);
@@ -33,7 +38,10 @@ function padToFixedWidth(
 }
 
 /**
- * Prints the help message for mantle, including usage instructions and available options.
+ * Prints the help message for the application, including usage instructions and available options.
+ * @param {string} name - The name of the application.
+ * @param {{ [key: string]: ArgDictionaryItem }} argDictionaryInput - The input argument dictionary.
+ * @param {string} env_prefix - The environment variable prefix.
  */
 export function printHelp(
   name: string,
@@ -60,6 +68,9 @@ export function printHelp(
   console.log(lines.join("\n"));
 }
 
+/**
+ * Represents an item in the argument dictionary.
+ */
 export type ArgDictionaryItem = {
   short: string;
   description: string;
@@ -70,8 +81,11 @@ export type ArgDictionaryItem = {
 };
 
 /**
- * A dictionary of command-line arguments and their properties.
- * @type {Object.<string, ArgDictionaryItem>}
+ * Builds a dictionary of command-line arguments and their properties.
+ * @param {string} name - The name of the application.
+ * @param {{ [key: string]: ArgDictionaryItem }} argDictionary - The input argument dictionary.
+ * @param {string} env_prefix - The environment variable prefix.
+ * @returns {{ [key: string]: ArgDictionaryItem }} The complete argument dictionary.
  */
 export function buildArgDictionary(
   name: string,
@@ -105,7 +119,7 @@ export function buildArgDictionary(
 
 /**
  * Filters and returns argument keys from the argDictionary based on the specified type.
- * @param {Object.<string, ArgDictionaryItem>} argDictionary - An object containing argument definitions.
+ * @param {{ [key: string]: ArgDictionaryItem }} argDictionary - An object containing argument definitions.
  * @param {"boolean" | "string"} argType - The type of arguments to filter.
  * @returns {string[]} An array of argument keys matching the specified type.
  */
@@ -121,6 +135,7 @@ export function getArgsFromType(
 /**
  * Parses command-line arguments into a structured Args object.
  * @param {string[]} args - An array of command-line argument strings.
+ * @param {{ [key: string]: ArgDictionaryItem }} argDictionary - An object containing argument definitions.
  * @returns {Args} An object containing parsed arguments.
  */
 export function parseArguments(
@@ -139,18 +154,25 @@ export function parseArguments(
   });
 }
 
+/**
+ * Internal object containing references to key functions.
+ */
 export const _internal = {
   printHelp: printHelp,
   printVersion: printVersion,
   parseArguments: parseArguments,
 };
+
 /**
- * The main function that runs the mantle application.
+ * The main function that runs the application.
  * It parses command-line arguments, handles help and version flags,
  * and starts the server if no special flags are provided.
  * We use dynamic import to defer the server start until we have parsed the arguments.
  * This prevents the SparkplugHost from being created if we're not going to run the server yet.
- * @async
+ * @param {string} name - The name of the application.
+ * @param {(args: Args) => Promise<void>} runServer - Function to run the server.
+ * @param {{ [key: string]: ArgDictionaryItem }} argDictionaryInput - The input argument dictionary.
+ * @param {string} env_prefix - The environment variable prefix.
  * @returns {Promise<void>}
  */
 export async function main(
