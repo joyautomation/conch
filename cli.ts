@@ -192,13 +192,11 @@ export function createMain(
       env_prefix,
     );
     const args = _internal.parseArguments(Deno.args, argDictionary);
-    Object.keys(args).forEach((key) => {
-      const arg = args[key];
-      if (arg?.action) {
-        arg.action();
-      }
-      if (arg?.exit) {
-        Deno.exit(0);
+    Object.entries(argDictionary).forEach(([key, arg]) => {
+      const argValue = args[key];
+      if (argValue) {
+        if (arg?.action) arg.action();
+        if (arg?.exit) Deno.exit(0);
       }
     });
     await runServer(name, info, args);
