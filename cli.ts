@@ -198,6 +198,6 @@ export async function main(
     if (arg?.exit) {
       Deno.exit(0);
     }
-    runServer(name, args, builder);
   });
+  await runServer(name, builder, args);
 }

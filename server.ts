@@ -25,7 +25,6 @@ export function createRunServer(
   beforeServe?: (args: Args) => void | Promise<void>,
 ): (
   name: string,
-  info: string,
   builder: ReturnType<typeof getBuilder>,
   args: Args,
 ) => void {
@@ -35,7 +34,11 @@ export function createRunServer(
    * @param {string} info - Information about the server.
    * @param {Args} args - Command-line arguments.
    */
-  return async (name: string, info: string, args: Args) => {
+  return async (
+    name: string,
+    builder: ReturnType<typeof getBuilder>,
+    args: Args,
+  ) => {
     setLogLevel(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
