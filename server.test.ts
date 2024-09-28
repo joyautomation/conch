@@ -15,8 +15,8 @@ describe("server", () => {
       "CONCH",
       4000,
       "0.0.0.0",
-      (builder) => builder,
       log,
+      (builder) => builder,
     );
     runServer(
       "conch",
