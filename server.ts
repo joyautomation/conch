@@ -12,7 +12,7 @@ export function createRunServer(
     builder: ReturnType<typeof getBuilder>,
   ) => ReturnType<typeof getBuilder>,
   log: Log,
-) {
+): (name: string, info: string, args: Args) => void {
   return (name: string, info: string, args: Args) => {
     setLogLevel(
       log,
