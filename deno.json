@@ -1,7 +1,7 @@
 {
   "name": "@joyautomation/conch",
   "exports": "./index.ts",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "license": "GPL-3.0-or-later",
   "tasks": {
     "dev": "deno run --watch main.ts"
