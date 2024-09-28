@@ -184,7 +184,11 @@ export function createMain(
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
   builder: ReturnType<typeof getBuilder>,
   runServer: ReturnType<typeof createRunServer>,
-) {
+): (
+  name: string,
+  builder: ReturnType<typeof getBuilder>,
+  args: Args,
+) => void {
   return async (): Promise<void> => {
     const argDictionary = buildArgDictionary(
       name,
