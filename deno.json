@@ -1,6 +1,6 @@
 {
   "name": "conch",
-  "exports": "./index.js",
+  "exports": "./index.ts",
   "version": "0.0.3",
   "license": "GPL-3.0-or-later",
   "tasks": {
