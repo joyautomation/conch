@@ -27,6 +27,8 @@ export function createRunServer(
   name: string,
   info: string,
   args: Args,
+  mutations: boolean,
+  subscriptions: boolean,
 ) => void {
   /**
    * Runs the GraphQL server.
@@ -38,12 +40,14 @@ export function createRunServer(
     name: string,
     info: string,
     args: Args,
+    mutations: boolean,
+    subscriptions: boolean,
   ) => {
     setLogLevel(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
     );
-    const builder = getBuilder(info);
+    const builder = getBuilder(info, mutations, subscriptions);
     if (appendSchema) {
       await appendSchema(builder, args);
     }

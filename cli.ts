@@ -184,6 +184,8 @@ export function createMain(
   env_prefix: string,
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
   runServer: ReturnType<typeof createRunServer>,
+  mutations: boolean = false,
+  subscriptions: boolean = false,
 ): () => void {
   return async (): Promise<void> => {
     const argDictionary = buildArgDictionary(
@@ -199,6 +201,6 @@ export function createMain(
         if (arg?.exit) Deno.exit(0);
       }
     }
-    await runServer(name, info, args);
+    await runServer(name, info, args, mutations, subscriptions);
   };
 }
