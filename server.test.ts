@@ -7,7 +7,8 @@ import { LogLevel } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
 
 describe("server", () => {
-  it("should run server", () => {
+  const info = "this is the conch common cli tools for Joy Automation";
+  it("should run server", async () => {
     using _infoStub = stub(console, "info");
     const servStub = stub(Deno, "serve");
     const log = getLog("conch", LogLevel.info);
@@ -15,13 +16,15 @@ describe("server", () => {
       "CONCH",
       4000,
       "0.0.0.0",
-      (builder) => builder,
       log,
+      (builder) => builder,
     );
-    runServer(
+    await runServer(
       "conch",
-      "this is the conch common cli tools for Joy Automation",
+      info,
       {} as Args,
+      false,
+      false,
     );
     assertSpyCalls(servStub, 1);
   });

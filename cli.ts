@@ -1,4 +1,6 @@
 import { type Args, parseArgs } from "@std/cli";
+import { getBuilder } from "./graphql.ts";
+import { createRunServer } from "./server.ts";
 
 /**
  * Reads the version from the deno.json file.
@@ -175,26 +177,30 @@ export const _internal = {
  * @param {string} env_prefix - The environment variable prefix.
  * @returns {Promise<void>}
  */
-export async function main(
+
+export function createMain(
   name: string,
-  runServer: (args: Args) => Promise<void>,
-  argDictionaryInput: { [key: string]: ArgDictionaryItem },
+  info: string,
   env_prefix: string,
-): Promise<void> {
-  const argDictionary = buildArgDictionary(
-    name,
-    argDictionaryInput,
-    env_prefix,
-  );
-  const args = _internal.parseArguments(Deno.args, argDictionary);
-  Object.keys(args).forEach((key) => {
-    const arg = argDictionary[key];
-    if (arg?.action) {
-      arg.action();
+  argDictionaryInput: { [key: string]: ArgDictionaryItem },
+  runServer: ReturnType<typeof createRunServer>,
+  mutations: boolean = false,
+  subscriptions: boolean = false,
+): () => void {
+  return async (): Promise<void> => {
+    const argDictionary = buildArgDictionary(
+      name,
+      argDictionaryInput,
+      env_prefix,
+    );
+    const args = _internal.parseArguments(Deno.args, argDictionary);
+    for (const [key, arg] of Object.entries(argDictionary)) {
+      const argValue = args[key];
+      if (argValue) {
+        if (arg?.action) await arg.action();
+        if (arg?.exit) Deno.exit(0);
+      }
     }
-    if (arg?.exit) {
-      Deno.exit(0);
-    }
-    runServer(args);
-  });
+    await runServer(name, info, args, mutations, subscriptions);
+  };
 }

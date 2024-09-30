@@ -17,28 +17,47 @@ export function createRunServer(
   env_prefix: string,
   default_port: number,
   default_host: string,
-  appendSchema: (
-    builder: ReturnType<typeof getBuilder>,
-  ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
   log: Log,
-): (name: string, info: string, args: Args) => void {
+  appendSchema?: (
+    builder: ReturnType<typeof getBuilder>,
+    args: Args,
+  ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
+  beforeServe?: (args: Args) => void | Promise<void>,
+): (
+  name: string,
+  info: string,
+  args: Args,
+  mutations: boolean,
+  subscriptions: boolean,
+) => void {
   /**
    * Runs the GraphQL server.
    * @param {string} name - The name of the server.
    * @param {string} info - Information about the server.
    * @param {Args} args - Command-line arguments.
    */
-  return (name: string, info: string, args: Args) => {
+  return async (
+    name: string,
+    info: string,
+    args: Args,
+    mutations: boolean,
+    subscriptions: boolean,
+  ) => {
     setLogLevel(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
     );
-    const builder = getBuilder(info);
-    appendSchema(builder);
+    const builder = getBuilder(info, mutations, subscriptions);
+    if (appendSchema) {
+      await appendSchema(builder, args);
+    }
     const schema = builder.toSchema();
     const yoga = createYoga({
       schema,
     });
+    if (beforeServe) {
+      await beforeServe(args);
+    }
     Deno.serve(
       {
         port: validatePort(

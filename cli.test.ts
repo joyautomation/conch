@@ -1,16 +1,13 @@
 import { describe, it } from "@std/testing/bdd";
-import {
-  assertSpyCallArgs,
-  assertSpyCalls,
-  spy,
-  stub,
-} from "@std/testing/mock";
-import { main } from "./cli.ts";
+import { assertSpyCallArgs, assertSpyCalls, stub } from "@std/testing/mock";
+import { createMain } from "./cli.ts";
 import { _internal } from "./cli.ts";
 import { assert } from "@std/assert";
 
 describe("cli", () => {
-  it("should print version", () => {
+  const info = "some info";
+  const main = createMain("conch", info, "CONCH", {}, async () => {});
+  it("should print version", async () => {
     const version = JSON.parse(Deno.readTextFileSync("./deno.json")).version;
     using logStub = stub(console, "log");
     using denoExitStub = stub(Deno, "exit");
@@ -19,12 +16,12 @@ describe("cli", () => {
       "parseArguments",
       () => ({ _: [], version: true }),
     );
-    main("conch", async () => {}, {}, "CONCH");
+    await main();
     assertSpyCalls(logStub, 1);
     assertSpyCallArgs(logStub, 0, [`conch v${version}`]);
     assertSpyCalls(denoExitStub, 1);
   });
-  it("should print help", () => {
+  it("should print help", async () => {
     using denoExitStub = stub(Deno, "exit");
     using _argsStub = stub(
       _internal,
@@ -32,11 +29,11 @@ describe("cli", () => {
       () => ({ _: [], help: true }),
     );
     using logStub = stub(console, "log");
-    main("conch", async () => {}, {}, "CONCH");
+    await main();
     assertSpyCalls(logStub, 1);
     assertSpyCalls(denoExitStub, 1);
   });
-  it("should print help with correct format", () => {
+  it("should print help with correct format", async () => {
     using denoExitStub = stub(Deno, "exit");
     using _argsStub = stub(
       _internal,
@@ -45,7 +42,7 @@ describe("cli", () => {
     );
     const logSpy = stub(console, "log");
 
-    main("conch", async () => {}, {}, "CONCH");
+    await main();
 
     assertSpyCalls(logSpy, 1);
     assertSpyCalls(denoExitStub, 1);

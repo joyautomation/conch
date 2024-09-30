@@ -16,6 +16,8 @@ export type Builder = ReturnType<typeof getBuilder>;
  */
 export function getBuilder(
   info: string,
+  mutations: boolean,
+  subscriptions: boolean,
 ): PothosSchemaTypes.SchemaBuilder<
   PothosSchemaTypes.ExtendDefaultTypes<{
     Scalars: {
@@ -35,18 +37,22 @@ export function getBuilder(
     };
   }>({});
   builder.addScalarType("Date", DateTimeResolver, {});
-  initialize(builder, info);
+  initialize(builder, info, mutations, subscriptions);
   return builder;
 }
 
 /**
- * Initializes the GraphQL schema with query and subscription types
+ * Initializes the GraphQL schema with query, mutation, and subscription types
  * @param {Builder} builder - The SchemaBuilder instance to initialize
  * @param {string} info - Information string to be used in the schema
+ * @param {boolean} mutations - Whether to include mutation type
+ * @param {boolean} subscriptions - Whether to include subscription type
  */
 export function initialize(
   builder: Builder,
   info: string,
+  mutations: boolean,
+  subscriptions: boolean,
 ) {
   builder.queryType({
     fields: (t) => ({
@@ -56,5 +62,11 @@ export function initialize(
     }),
   });
 
-  builder.subscriptionType({});
+  if (mutations) {
+    builder.mutationType({});
+  }
+
+  if (subscriptions) {
+    builder.subscriptionType({});
+  }
 }
