@@ -23,6 +23,8 @@ describe("server", () => {
       "conch",
       info,
       {} as Args,
+      false,
+      false,
     );
     assertSpyCalls(servStub, 1);
   });
