@@ -197,7 +197,7 @@ export function createMain(
     for (const [key, arg] of Object.entries(argDictionary)) {
       const argValue = args[key];
       if (argValue) {
-        if (arg?.action) await arg.action();
+        if (arg?.action) await arg.action(args);
         if (arg?.exit) Deno.exit(0);
       }
     }
