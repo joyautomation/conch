@@ -78,7 +78,7 @@ export type ArgDictionaryItem = {
   description: string;
   type: "boolean" | "string";
   env?: string; // environment variable that sets this argument if not specified
-  action?: () => void;
+  action?: (args?: Args) => void;
   exit?: boolean;
 };
 
