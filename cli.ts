@@ -130,7 +130,7 @@ export function getArgsFromType(
   argType: "boolean" | "string"
 ): string[] {
   return Object.entries(argDictionary)
-    .filter(([key, value]) => value.type === argType)
+    .filter(([_key, value]) => value.type === argType)
     .map(([key]) => key);
 }
 

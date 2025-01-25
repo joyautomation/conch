@@ -69,7 +69,7 @@ export function createRunServer<Context extends object>(
     const schema = builder.toSchema();
     const yoga = createYoga({
       schema,
-      context: async () => {
+      context: () => {
         return {
           ...initContextCache(),
           ...context,
