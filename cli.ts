@@ -78,7 +78,7 @@ export type ArgDictionaryItem = {
   description: string;
   type: "boolean" | "string";
   env?: string; // environment variable that sets this argument if not specified
-  action?: () => void;
+  action?: (args?: Args) => void;
   exit?: boolean;
 };
 
@@ -198,7 +198,7 @@ export function createMain<Context extends object>(
     for (const [key, arg] of Object.entries(argDictionary)) {
       const argValue = args[key];
       if (argValue) {
-        if (arg?.action) await arg.action();
+        if (arg?.action) await arg.action(args);
         if (arg?.exit) Deno.exit(0);
       }
     }
