@@ -21,9 +21,9 @@ export type Builder = ReturnType<typeof getBuilder>;
  */
 export function getBuilder<Context extends object>(
   info: string,
-  context: Context,
+  _context: Context,
   mutations: boolean,
-  subscriptions: boolean,
+  subscriptions: boolean
 ): PothosSchemaTypes.SchemaBuilder<
   PothosSchemaTypes.ExtendDefaultTypes<{
     Context: Context;
@@ -60,7 +60,7 @@ export function initialize<Context extends object>(
   builder: ReturnType<typeof getBuilder<Context>>,
   info: string,
   mutations: boolean,
-  subscriptions: boolean,
+  subscriptions: boolean
 ) {
   builder.queryType({
     fields: (t) => ({
