@@ -1,6 +1,5 @@
 import { type Args, parseArgs } from "@std/cli";
-import { getBuilder } from "./graphql.ts";
-import { createRunServer } from "./server.ts";
+import type { createRunServer } from "./server.ts";
 
 /**
  * Reads the version from the deno.json file.
@@ -30,7 +29,7 @@ export function printVersion(name: string): void {
 function padToFixedWidth(
   str: string,
   width: number,
-  padRight: boolean = true,
+  padRight: boolean = true
 ): string {
   if (str.length >= width) {
     return str.slice(0, width);
@@ -48,12 +47,12 @@ function padToFixedWidth(
 export function printHelp(
   name: string,
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
-  env_prefix: string,
+  env_prefix: string
 ): void {
   const argDictionary = buildArgDictionary(
     name,
     argDictionaryInput,
-    env_prefix,
+    env_prefix
   );
   const lines: string[] = [
     `Usage: ${name} [OPTIONS...]`,
@@ -62,9 +61,10 @@ export function printHelp(
   ];
   Object.entries(argDictionary).forEach(([key, arg]) => {
     lines.push(
-      `  -${arg.short},  --${padToFixedWidth(key, 15)}${
-        padToFixedWidth(arg.env ? `${arg.env}` : ``, 26)
-      }${arg.description}`,
+      `  -${arg.short},  --${padToFixedWidth(key, 15)}${padToFixedWidth(
+        arg.env ? `${arg.env}` : ``,
+        26
+      )}${arg.description}`
     );
   });
   console.log(lines.join("\n"));
@@ -92,7 +92,7 @@ export type ArgDictionaryItem = {
 export function buildArgDictionary(
   name: string,
   argDictionary: { [key: string]: ArgDictionaryItem },
-  env_prefix: string,
+  env_prefix: string
 ): { [key: string]: ArgDictionaryItem } {
   return {
     help: {
@@ -127,11 +127,11 @@ export function buildArgDictionary(
  */
 export function getArgsFromType(
   argDictionary: { [key: string]: ArgDictionaryItem },
-  argType: "boolean" | "string",
+  argType: "boolean" | "string"
 ): string[] {
-  return Object.entries(argDictionary).filter(([key, value]) =>
-    value.type === argType
-  ).map(([key]) => key);
+  return Object.entries(argDictionary)
+    .filter(([_key, value]) => value.type === argType)
+    .map(([key]) => key);
 }
 
 /**
@@ -142,13 +142,13 @@ export function getArgsFromType(
  */
 export function parseArguments(
   args: string[],
-  argDictionary: { [key: string]: ArgDictionaryItem },
+  argDictionary: { [key: string]: ArgDictionaryItem }
 ): Args {
   const booleanArgs = getArgsFromType(argDictionary, "boolean");
   const stringArgs = getArgsFromType(argDictionary, "string");
   return parseArgs(args, {
     alias: Object.fromEntries(
-      Object.entries(argDictionary).map(([key, value]) => [key, value.short]),
+      Object.entries(argDictionary).map(([key, value]) => [key, value.short])
     ),
     boolean: booleanArgs,
     string: stringArgs,
@@ -178,20 +178,21 @@ export const _internal = {
  * @returns {Promise<void>}
  */
 
-export function createMain(
+export function createMain<Context extends object>(
   name: string,
   info: string,
   env_prefix: string,
   argDictionaryInput: { [key: string]: ArgDictionaryItem },
-  runServer: ReturnType<typeof createRunServer>,
+  runServer: ReturnType<typeof createRunServer<Context>>,
   mutations: boolean = false,
   subscriptions: boolean = false,
+  context: Context = {} as Context
 ): () => void {
   return async (): Promise<void> => {
     const argDictionary = buildArgDictionary(
       name,
       argDictionaryInput,
-      env_prefix,
+      env_prefix
     );
     const args = _internal.parseArguments(Deno.args, argDictionary);
     for (const [key, arg] of Object.entries(argDictionary)) {
@@ -201,6 +202,6 @@ export function createMain(
         if (arg?.exit) Deno.exit(0);
       }
     }
-    await runServer(name, info, args, mutations, subscriptions);
+    await runServer(name, info, args, mutations, subscriptions, context);
   };
 }

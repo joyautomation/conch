@@ -4,7 +4,6 @@ import type { Args } from "@std/cli";
 import { describe, it } from "@std/testing/bdd";
 import { getLog } from "./log.ts";
 import { LogLevel } from "@joyautomation/coral";
-import { getBuilder } from "./graphql.ts";
 
 describe("server", () => {
   const info = "this is the conch common cli tools for Joy Automation";
@@ -25,6 +24,7 @@ describe("server", () => {
       {} as Args,
       false,
       false,
+      {}
     );
     assertSpyCalls(servStub, 1);
   });

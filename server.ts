@@ -1,34 +1,43 @@
 import { createYoga } from "graphql-yoga";
 import { validateHost, validatePort } from "./validation.ts";
 import type { Args } from "@std/cli";
-import { type Log, setLogLevel } from "@joyautomation/coral";
+import { setLogLevel, type Log } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
+import { initContextCache } from "@pothos/core";
+
+/**
+ * Logger interface used by the server
+ * @public
+ */
+export type { Log };
 
 /**
  * Creates a function that runs a GraphQL server.
  * @param {string} env_prefix - The prefix for environment variables.
  * @param {number} default_port - The default port number for the server.
  * @param {string} default_host - The default hostname for the server.
- * @param {function} appendSchema - A function to append additional schema to the GraphQL builder.
  * @param {Log} log - The logger instance.
  * @returns {function} A function that runs the server when called.
  */
-export function createRunServer(
+export function createRunServer<Context extends object>(
   env_prefix: string,
   default_port: number,
   default_host: string,
   log: Log,
   appendSchema?: (
-    builder: ReturnType<typeof getBuilder>,
-    args: Args,
-  ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
-  beforeServe?: (args: Args) => void | Promise<void>,
+    builder: ReturnType<typeof getBuilder<Context>>,
+    args: Args
+  ) =>
+    | ReturnType<typeof getBuilder<Context>>
+    | Promise<ReturnType<typeof getBuilder<Context>>>,
+  beforeServe?: (args: Args) => void | Promise<void>
 ): (
   name: string,
   info: string,
   args: Args,
   mutations: boolean,
   subscriptions: boolean,
+  context: Context
 ) => void {
   /**
    * Runs the GraphQL server.
@@ -42,18 +51,30 @@ export function createRunServer(
     args: Args,
     mutations: boolean,
     subscriptions: boolean,
+    context: Context = {} as Context
   ) => {
     setLogLevel(
       log,
-      args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
+      args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info"
     );
-    const builder = getBuilder(info, mutations, subscriptions);
+    const builder = getBuilder<Context>(
+      info,
+      context,
+      mutations,
+      subscriptions
+    );
     if (appendSchema) {
       await appendSchema(builder, args);
     }
     const schema = builder.toSchema();
     const yoga = createYoga({
       schema,
+      context: () => {
+        return {
+          ...initContextCache(),
+          ...context,
+        };
+      },
     });
     if (beforeServe) {
       await beforeServe(args);
@@ -64,19 +85,19 @@ export function createRunServer(
           env_prefix,
           Deno.env.get(`${env_prefix}_PORT`),
           default_port,
-          log,
+          log
         ),
         hostname: validateHost(
           env_prefix,
           Deno.env.get(`${env_prefix}_HOST`),
           default_host,
-          log,
+          log
         ),
         onListen({ hostname, port }) {
           log.info(`${name} graphQL api is running on ${hostname}:${port}`);
         },
       },
-      yoga.fetch,
+      yoga.fetch
     );
   };
 }
