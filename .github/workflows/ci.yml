@@ -20,3 +20,6 @@ jobs:
 
       - name: Run tests
         run: deno test -A
+
+      - name: Check documentation
+        run: deno doc --lint
