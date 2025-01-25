@@ -39,7 +39,7 @@ export const createApp = <Context extends object>(
     | Promise<ReturnType<typeof getBuilder<Context>>>,
   beforeServe?: (args: Args) => void | Promise<void>,
   context: Context = {} as Context
-) => {
+): ReturnType<typeof createMain<Context>> => {
   const runServer = createRunServer(
     env_prefix,
     default_port,
