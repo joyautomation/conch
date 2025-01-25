@@ -22,4 +22,4 @@ jobs:
         run: deno test -A
 
       - name: Check documentation
-        run: deno doc --lint
+        run: deno doc --lint index.ts
