@@ -11,8 +11,13 @@ export type Builder = ReturnType<typeof getBuilder>;
 
 /**
  * Creates and returns a SchemaBuilder instance with custom scalar types
+ * @template Context - The type of the context object
  * @param {string} info - Information string to be used in the schema
+ * @param {Context} context - The context object for the schema
+ * @param {boolean} mutations - Whether to enable mutations
+ * @param {boolean} subscriptions - Whether to enable subscriptions
  * @returns {PothosSchemaTypes.SchemaBuilder} A configured SchemaBuilder instance
+ * @public
  */
 export function getBuilder<Context extends object>(
   info: string,
