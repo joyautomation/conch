@@ -3,6 +3,7 @@ import { validateHost, validatePort } from "./validation.ts";
 import type { Args } from "@std/cli";
 import { type Log, setLogLevel } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
+import { initContextCache } from "@pothos/core";
 
 /**
  * Creates a function that runs a GraphQL server.
@@ -13,15 +14,17 @@ import { getBuilder } from "./graphql.ts";
  * @param {Log} log - The logger instance.
  * @returns {function} A function that runs the server when called.
  */
-export function createRunServer(
+export function createRunServer<Context extends object>(
   env_prefix: string,
   default_port: number,
   default_host: string,
   log: Log,
   appendSchema?: (
-    builder: ReturnType<typeof getBuilder>,
+    builder: ReturnType<typeof getBuilder<Context>>,
     args: Args,
-  ) => ReturnType<typeof getBuilder> | Promise<ReturnType<typeof getBuilder>>,
+  ) =>
+    | ReturnType<typeof getBuilder<Context>>
+    | Promise<ReturnType<typeof getBuilder<Context>>>,
   beforeServe?: (args: Args) => void | Promise<void>,
 ): (
   name: string,
@@ -29,6 +32,7 @@ export function createRunServer(
   args: Args,
   mutations: boolean,
   subscriptions: boolean,
+  context: Context,
 ) => void {
   /**
    * Runs the GraphQL server.
@@ -42,18 +46,30 @@ export function createRunServer(
     args: Args,
     mutations: boolean,
     subscriptions: boolean,
+    context: Context = {} as Context,
   ) => {
     setLogLevel(
       log,
       args["log-level"] || Deno.env.get(`${env_prefix}_LOG_LEVEL`) || "info",
     );
-    const builder = getBuilder(info, mutations, subscriptions);
+    const builder = getBuilder<Context>(
+      info,
+      context,
+      mutations,
+      subscriptions,
+    );
     if (appendSchema) {
       await appendSchema(builder, args);
     }
     const schema = builder.toSchema();
     const yoga = createYoga({
       schema,
+      context: async () => {
+        return {
+          ...initContextCache(),
+          ...context,
+        };
+      },
     });
     if (beforeServe) {
       await beforeServe(args);
