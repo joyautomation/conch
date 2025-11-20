@@ -3,6 +3,7 @@ import { DateTimeResolver } from "graphql-scalars";
 
 // Add this import
 import type PothosSchemaTypes from "@pothos/core";
+export { createPubSub } from "graphql-yoga";
 
 /**
  * Type alias for the SchemaBuilder returned by getBuilder
