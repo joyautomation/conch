@@ -202,6 +202,14 @@ export function createMain<Context extends object>(
         if (arg?.exit) Deno.exit(0);
       }
     }
+    for (const [key, arg] of Object.entries(argDictionary)) {
+      if (arg.env) {
+        const env = Deno.env.get(arg.env);
+        if (env) {
+          args[key] = env;
+        }
+      }
+    }
     await runServer(name, info, args, mutations, subscriptions, context);
   };
 }
