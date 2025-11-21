@@ -1,10 +1,9 @@
-import { describe, it } from "jsr:@std/testing/bdd";
-import { expect } from "jsr:@std/expect";
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
 import { isValidHost, isValidPort, validate } from "./validation.ts";
 import { assertSpyCalls, stub } from "@std/testing/mock";
 import { makeNumberOrUndefined } from "./validation.ts";
-import { getLog } from "./log.ts";
-import { LogLevel } from "@joyautomation/coral";
+import { createLogger, LogLevel } from "@joyautomation/coral";
 
 describe("isValidHost", () => {
   it("should return true for valid hostnames", () => {
@@ -47,7 +46,7 @@ describe("isValidPort", () => {
 });
 
 describe("validate", () => {
-  const log = getLog("conch", LogLevel.info);
+  const log = createLogger("conch", LogLevel.info);
   it("should throw an error for invalid host", () => {
     expect(validate(null, null, () => false, "MANTLE_HOST", log)).toEqual(null);
   });
