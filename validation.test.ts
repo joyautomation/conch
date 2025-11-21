@@ -38,9 +38,13 @@ describe("isValidPort", () => {
   });
 
   it("should return false for non-numeric values", () => {
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort("80" as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort(null as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort(undefined as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort({} as any)).toBe(false);
   });
 });
@@ -68,6 +72,7 @@ describe("validate", () => {
 
 describe("makeNumberOrUndefined", () => {
   it("should return undefined for null", () => {
+    // deno-lint-ignore no-explicit-any
     expect(makeNumberOrUndefined(null as any)).toEqual(undefined);
   });
   it("should return undefined for undefined", () => {
