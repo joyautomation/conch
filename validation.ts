@@ -1,4 +1,4 @@
-import { Log } from "@joyautomation/coral";
+import type { Log } from "@joyautomation/coral";
 
 export function isValidPort(input: number | undefined): boolean {
   return (

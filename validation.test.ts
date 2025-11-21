@@ -1,10 +1,9 @@
-import { describe, it } from "jsr:@std/testing/bdd";
-import { expect } from "jsr:@std/expect";
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
 import { isValidHost, isValidPort, validate } from "./validation.ts";
 import { assertSpyCalls, stub } from "@std/testing/mock";
 import { makeNumberOrUndefined } from "./validation.ts";
-import { getLog } from "./log.ts";
-import { LogLevel } from "@joyautomation/coral";
+import { createLogger, LogLevel } from "@joyautomation/coral";
 
 describe("isValidHost", () => {
   it("should return true for valid hostnames", () => {
@@ -39,15 +38,19 @@ describe("isValidPort", () => {
   });
 
   it("should return false for non-numeric values", () => {
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort("80" as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort(null as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort(undefined as any)).toBe(false);
+    // deno-lint-ignore no-explicit-any
     expect(isValidPort({} as any)).toBe(false);
   });
 });
 
 describe("validate", () => {
-  const log = getLog("conch", LogLevel.info);
+  const log = createLogger("conch", LogLevel.info);
   it("should throw an error for invalid host", () => {
     expect(validate(null, null, () => false, "MANTLE_HOST", log)).toEqual(null);
   });
@@ -69,6 +72,7 @@ describe("validate", () => {
 
 describe("makeNumberOrUndefined", () => {
   it("should return undefined for null", () => {
+    // deno-lint-ignore no-explicit-any
     expect(makeNumberOrUndefined(null as any)).toEqual(undefined);
   });
   it("should return undefined for undefined", () => {
