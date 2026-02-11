@@ -9,7 +9,10 @@ import { setLogLevel, type Log } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
 import { initContextCache } from "@pothos/core";
 
-// Type definition for REST endpoints
+/**
+ * Configuration for a custom REST endpoint handler.
+ * @public
+ */
 export type RestEndpoint = {
   path: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS';
