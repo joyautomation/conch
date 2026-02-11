@@ -1,9 +1,20 @@
 import { createYoga } from "graphql-yoga";
+import {
+  makeHandler,
+  GRAPHQL_TRANSPORT_WS_PROTOCOL,
+} from "graphql-ws/lib/use/deno";
 import { validateHost, validatePort } from "./validation.ts";
 import type { Args } from "@std/cli";
 import { setLogLevel, type Log } from "@joyautomation/coral";
 import { getBuilder } from "./graphql.ts";
 import { initContextCache } from "@pothos/core";
+
+// Type definition for REST endpoints
+export type RestEndpoint = {
+  path: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS';
+  handler: (request: Request) => Response | Promise<Response>;
+};
 
 /**
  * Logger interface used by the server
@@ -30,7 +41,8 @@ export function createRunServer<Context extends object>(
   ) =>
     | ReturnType<typeof getBuilder<Context>>
     | Promise<ReturnType<typeof getBuilder<Context>>>,
-  beforeServe?: (args: Args) => void | Promise<void>
+  beforeServe?: (args: Args) => void | Promise<void>,
+  restEndpoints?: RestEndpoint[]
 ): (
   name: string,
   info: string,
@@ -76,6 +88,21 @@ export function createRunServer<Context extends object>(
         };
       },
     });
+
+    // Create WebSocket handler for graphql-ws subscriptions
+    // Schema type assertion needed: graphql-yoga and graphql-ws resolve
+    // different graphql package versions with incompatible private fields,
+    // but the runtime types are structurally identical.
+    const wsHandler = subscriptions
+      ? makeHandler({
+          schema: schema as Parameters<typeof makeHandler>[0]["schema"],
+          context: () => ({
+            ...initContextCache(),
+            ...context,
+          }),
+        })
+      : null;
+
     if (beforeServe) {
       await beforeServe(args);
     }
@@ -97,7 +124,47 @@ export function createRunServer<Context extends object>(
           log.info(`${name} graphQL api is running on ${hostname}:${port}`);
         },
       },
-      yoga.fetch
+      async (request: Request, connInfo: Deno.ServeHandlerInfo) => {
+        // Handle WebSocket upgrades for graphql-ws subscriptions
+        if (
+          wsHandler &&
+          request.headers.get("upgrade")?.toLowerCase() === "websocket"
+        ) {
+          const { socket, response } = Deno.upgradeWebSocket(request, {
+            protocol: GRAPHQL_TRANSPORT_WS_PROTOCOL,
+            idleTimeout: 12_000,
+          });
+          wsHandler(socket);
+          return response;
+        }
+
+        // Handle REST endpoints if provided
+        if (restEndpoints && restEndpoints.length > 0) {
+          const url = new URL(request.url);
+          const path = url.pathname;
+          const method = request.method;
+
+          // Find matching REST endpoint
+          const endpoint = restEndpoints.find(
+            (e) => e.path === path && e.method === method
+          );
+
+          if (endpoint) {
+            try {
+              return await endpoint.handler(request);
+            } catch (error) {
+              log.error(`Error in REST endpoint ${method} ${path}:`, error);
+              return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          }
+        }
+
+        // Default to GraphQL handler (HTTP queries/mutations + SSE subscriptions)
+        return yoga.fetch(request, connInfo);
+      }
     );
   };
 }

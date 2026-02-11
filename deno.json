@@ -13,7 +13,9 @@
     "@std/assert": "jsr:@std/assert@1",
     "@std/cli": "jsr:@std/cli@^1.0.6",
     "@std/testing": "jsr:@std/testing@^1.0.3",
+    "graphql": "npm:graphql@^16.9.0",
     "graphql-scalars": "npm:graphql-scalars@^1.23.0",
+    "graphql-ws": "npm:graphql-ws@^5.16.0",
     "graphql-yoga": "npm:graphql-yoga@^5.7.0"
   }
 }
