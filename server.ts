@@ -137,6 +137,13 @@ export function createRunServer<Context extends object>(
             protocol: GRAPHQL_TRANSPORT_WS_PROTOCOL,
             idleTimeout: 12_000,
           });
+          // Deno bug: socket.protocol is always "" even when protocol is negotiated.
+          // graphql-ws checks this property and rejects with 4406 if it doesn't match.
+          Object.defineProperty(socket, "protocol", {
+            value: GRAPHQL_TRANSPORT_WS_PROTOCOL,
+            writable: false,
+            configurable: true,
+          });
           wsHandler(socket);
           return response;
         }

@@ -1,7 +1,7 @@
 {
   "name": "@joyautomation/conch",
   "exports": "./index.ts",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "license": "Apache-2.0",
   "tasks": {
     "dev": "deno run --watch main.ts"
